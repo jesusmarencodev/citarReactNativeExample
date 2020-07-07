@@ -3,7 +3,7 @@
 /* eslint-disable semi */
 /* eslint-disable no-trailing-spaces */
 /* eslint-disable prettier/prettier */
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { 
         StyleSheet,
         Text,
@@ -15,25 +15,38 @@ import {
         TouchableWithoutFeedback,
         Keyboard,
        } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage';
 import Cita from './components/Cita'
 import Formulario from './components/Formulario'
 
 
 export default function App() {
-
+  const [citas, setCitas] = useState([])
   const [mostrarForm, setMostrarForm] = useState(false);
 
-  const [citas, setCitas] = useState([
-    {id:"1", paciente : "Hook", propietario : "Jesus", sintomas : "No come"},
-    {id:"2", paciente : "Redux", propietario : "Dario", sintomas : "No duerme"},
-    {id:"3", paciente : "Native", propietario : "Marenco", sintomas : "No canta"},
-  ])
+  useEffect(()=>{
+    const obtenerCitasStorage = async () => {
+      try {
+        const citasStorage = await AsyncStorage.getItem('citas');
+        if(citasStorage){
+          setCitas(JSON.parse(citasStorage))
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    obtenerCitasStorage();
+  }, []);
+
+  
 
   //Eliminar pacientes
   const eliminarPaciente = id => {
-    setCitas((citasActuales) => {
-      return citasActuales.filter(cita => cita.id !== id)
-    })
+    const cityasFiltradas = citas.filter(cita => cita.id !== id);
+    setCitas(cityasFiltradas)
+    guardarCitasStorage(JSON.stringify(cityasFiltradas))
+
+
   }
 
   //Muestra u oculta el formulario
@@ -45,6 +58,16 @@ export default function App() {
   const cerrarTeclado = () => {
     Keyboard.dismiss();
   }
+
+  //Almacenar citas
+  const guardarCitasStorage = async (citasJSON) => {
+    try {
+      await AsyncStorage.setItem('citas', citasJSON);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
 
 
   return ( 
@@ -60,7 +83,7 @@ export default function App() {
           {mostrarForm ? (
             <>
               <Text style={styles.titulo}>Crear Nueva cita</Text>
-              <Formulario citas={citas} setCitas={setCitas} setMostrarForm={setMostrarForm}/>
+              <Formulario citas={citas} setCitas={setCitas} setMostrarForm={setMostrarForm} guardarCitasStorage={guardarCitasStorage}/>
             </>
           ):(
             <>

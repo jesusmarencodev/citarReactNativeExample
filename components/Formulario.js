@@ -9,7 +9,7 @@ import { StyleSheet, Text, View, TextInput, Button, TouchableHighlight, Alert, S
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import shortid from 'shortid';
 
-export default function Formulario({citas, setCitas, setMostrarForm}) {
+export default function Formulario({citas, setCitas, setMostrarForm, guardarCitasStorage}) {
   const [paciente, setPaciente] = useState('');
   const [propietario, setPropietario] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -70,6 +70,9 @@ export default function Formulario({citas, setCitas, setMostrarForm}) {
     //agregar al state
     const citasNuevo = [...citas, cita];
     setCitas(citasNuevo);
+
+    //pasar las nuevas citas al storage
+    guardarCitasStorage(JSON.stringify(citasNuevo));
 
     //Ocultar form
     setMostrarForm( false );
